@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vijay Sehgal | Building AI Products</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts: DM Sans (More modern/human than Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { 
+            font-family: 'DM Sans', sans-serif; 
+            background-color: #FAFAFA; 
+            color: #171717; 
+        }
+        
+        /* Subtle Gradient Mesh Background */
+        .mesh-bg {
+            background-color: #ffffff;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,0) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0) 0, transparent 50%);
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        }
+
+        .nav-blur {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Timeline Line */
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 24px;
+            height: 100%;
+            width: 1px;
+            background: #E5E5E5;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="mesh-bg min-h-screen">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { 
+            ArrowUpRight, Github, Linkedin, Mail, Sparkles, 
+            Workflow, Brain, Rocket, Zap, Coffee, BookOpen, 
+            Layout, ChevronRight, Download
+        } = lucide;
+
+        // --- Components ---
+
+        const Tag = ({ label, type = "default" }) => {
+            const styles = {
+                default: "bg-gray-100 text-gray-600",
+                ai: "bg-blue-50 text-blue-700 border border-blue-100",
+                product: "bg-purple-50 text-purple-700 border border-purple-100",
+                growth: "bg-emerald-50 text-emerald-700 border border-emerald-100"
+            };
+            return (
+                <span className={`px-2 py-1 rounded-md text-[11px] font-semibold tracking-wide uppercase ${styles[type] || styles.default}`}>
+                    {label}
+                </span>
+            );
+        };
+
+        const FeaturedCard = ({ title, category, description, imageGradient, icon: Icon, links, tags, metric }) => (
+            <div className="group relative bg-white rounded-3xl p-1 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 h-full flex flex-col">
+                <div className={`h-32 rounded-2xl ${imageGradient} relative overflow-hidden`}>
+                    <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px]"></div>
+                    <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md p-2 rounded-xl shadow-sm">
+                        <Icon size={20} className="text-gray-800" />
+                    </div>
+                </div>
+                
+                <div className="p-5 flex flex-col flex-grow">
+                    <div className="flex items-center gap-2 mb-2">
+                        <Tag label={category.type} type={category.style} />
+                        <span className="text-xs text-gray-400 font-medium">{category.date}</span>
+                    </div>
+                    
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                        {title}
+                    </h3>
+                    
+                    <p className="text-gray-500 text-sm leading-relaxed mb-4 line-clamp-3">
+                        {description}
+                    </p>
+
+                    {metric && (
+                        <div className="mb-4 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100 flex items-center gap-2">
+                            <Zap size={14} className="text-amber-500" />
+                            <span className="text-xs font-medium text-gray-700">{metric}</span>
+                        </div>
+                    )}
+
+                    <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+                        <div className="flex -space-x-2">
+                            {/* Simulated tech stack avatars/icons */}
+                            {tags.map((tag, i) => (
+                                <div key={i} className="w-6 h-6 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-[8px] font-bold text-gray-500" title={tag}>
+                                    {tag[0]}
+                                </div>
+                            ))}
+                        </div>
+                        <div className="flex gap-3">
+                            {links.map((link, i) => (
+                                <a key={i} href={link.url} className="text-sm font-medium text-gray-600 hover:text-black flex items-center gap-1">
+                                    {link.label} <ArrowUpRight size={14} />
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const Milestone = ({ date, title, description, type }) => (
+            <div className="relative pl-16 py-2 group">
+                {/* Dot */}
+                <div className={`absolute left-[21px] top-3 w-2 h-2 rounded-full border-2 bg-white z-10 transition-colors duration-300 
+                    ${type === 'launch' ? 'border-blue-500 group-hover:bg-blue-500' : 'border-gray-300 group-hover:bg-gray-300'}`}>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+                    <span className="text-xs font-medium text-gray-400 w-16 shrink-0">{date}</span>
+                    <div>
+                        <h4 className={`text-sm font-bold ${type === 'launch' ? 'text-gray-900' : 'text-gray-600'}`}>
+                            {title}
+                        </h4>
+                        <p className="text-sm text-gray-500 mt-1 leading-relaxed max-w-xl">
+                            {description}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const BentoItem = ({ title, subtitle, icon: Icon, color }) => (
+            <div className="glass-panel p-5 rounded-2xl flex items-center gap-4 hover:scale-[1.02] transition-transform cursor-default">
+                <div className={`p-3 rounded-xl ${color}`}>
+                    <Icon size={20} className="text-gray-800" />
+                </div>
+                <div>
+                    <h4 className="font-bold text-gray-900 text-sm">{title}</h4>
+                    <p className="text-xs text-gray-500">{subtitle}</p>
+                </div>
+            </div>
+        );
+
+        // --- Main Application ---
+
+        const App = () => {
+            useEffect(() => {
+                lucide.createIcons();
+            }, []);
+
+            return (
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-20">
+                    
+                    {/* Navigation */}
+                    <nav className="fixed top-0 left-0 right-0 z-50 nav-blur">
+                        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+                            <span className="font-bold text-lg tracking-tight flex items-center gap-2">
+                                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                                Vijay Sehgal
+                            </span>
+                            <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-500">
+                                <a href="#work" className="hover:text-black transition-colors">Featured Work</a>
+                                <a href="#experience" className="hover:text-black transition-colors">Timeline</a>
+                                <a href="#side-projects" className="hover:text-black transition-colors">Side Quests</a>
+                            </div>
+                            <a href="mailto:vijay.b.sehgal@gmail.com" className="bg-black text-white px-4 py-2 rounded-full text-xs font-bold tracking-wide hover:bg-gray-800 transition-colors">
+                                LET'S TALK
+                            </a>
+                        </div>
+                    </nav>
+
+                    {/* Hero Section - Jaclyn Style: Simple & Direct */}
+                    <section className="pt-40 pb-20">
+                        <div className="max-w-2xl">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold tracking-wider uppercase mb-6">
+                                <Sparkles size={12} /> Available for AI PM Roles
+                            </div>
+                            <h1 className="text-5xl sm:text-6xl font-bold text-gray-900 tracking-tight mb-8 leading-[1.1]">
+                                I build <span className="text-gradient">0-to-1 AI products</span> that ship.
+                            </h1>
+                            <p className="text-lg text-gray-500 leading-relaxed mb-10 max-w-lg">
+                                Product Generalist pivoting to AI with extreme velocity. 
+                                Recently shipped <strong>4 AI prototypes in 8 weeks</strong> using Gemini, n8n, and React.
+                                Obsessed with the intersection of Agents and UX.
+                            </p>
+                            
+                            <div className="flex items-center gap-4">
+                                <a href="#work" className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors">
+                                    See Featured Work <ChevronRight size={16} />
+                                </a>
+                                <a href="#" className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-gray-600 hover:bg-gray-100 transition-colors">
+                                    <Download size={16} /> Resume
+                                </a>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Featured Work - "Cards" Style */}
+                    <section id="work" className="mb-32 scroll-mt-24">
+                        <div className="flex items-baseline justify-between mb-10">
+                            <h2 className="text-2xl font-bold text-gray-900">Featured Work</h2>
+                            <span className="text-sm text-gray-400">Highlights from 2025</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {/* Project 1 */}
+                            <FeaturedCard 
+                                title="AI Portfolio Generator"
+                                category={{ type: "AI Agent", style: "ai", date: "May 2025" }}
+                                description="An AI agent that interviews PMs and auto-generates portfolio cards. Solves the 'blank page' problem for job seekers."
+                                metric="78% Activation Rate"
+                                imageGradient="bg-gradient-to-br from-blue-100 to-indigo-100"
+                                icon={Brain}
+                                tags={["Gemini", "n8n", "React"]}
+                                links={[{ label: "Live Demo", url: "#" }, { label: "Case Study", url: "#" }]}
+                            />
+
+                            {/* Project 2 */}
+                            <FeaturedCard 
+                                title="Swish Growth Pilot"
+                                category={{ type: "Growth", style: "growth", date: "July 2025" }}
+                                description="Redesigned the post-order flow for a quick-commerce app. Ran a 30-day experiment to prove retention impact."
+                                metric="Doubled Reorder Rate (12% → 24%)"
+                                imageGradient="bg-gradient-to-br from-emerald-100 to-teal-100"
+                                icon={Workflow}
+                                tags={["Figma", "Mixpanel"]}
+                                links={[{ label: "Prototype", url: "#" }, { label: "Results", url: "#" }]}
+                            />
+
+                            {/* Project 3 */}
+                            <FeaturedCard 
+                                title="Blinkit Smart Cart"
+                                category={{ type: "Product Spec", style: "product", date: "June 2025" }}
+                                description="Reverse-engineered purchase history APIs to scope a 'Smart Cart' pre-fill feature. Modeled logic for basket size lift."
+                                metric="Projected +5% Basket Size"
+                                imageGradient="bg-gradient-to-br from-orange-100 to-yellow-100"
+                                icon={Layout}
+                                tags={["SQL", "System Design"]}
+                                links={[{ label: "Read PRD", url: "#" }]}
+                            />
+                        </div>
+                    </section>
+
+                    {/* Experience Timeline - Jaclyn Style Milestones */}
+                    <section id="experience" className="mb-32 scroll-mt-24 grid grid-cols-1 md:grid-cols-12 gap-8">
+                        <div className="md:col-span-4">
+                            <h2 className="text-2xl font-bold text-gray-900 mb-4">Experience Timeline</h2>
+                            <p className="text-sm text-gray-500 leading-relaxed">
+                                My journey from Engineering to Founding a Startup to Product Ops. 
+                                Focused on building systems and shipping early.
+                            </p>
+                        </div>
+
+                        <div className="md:col-span-8 relative timeline-line">
+                            {/* Role 1 */}
+                            <div className="mb-12">
+                                <div className="flex items-center gap-3 mb-6 relative z-10">
+                                    <div className="w-12 h-12 bg-white border border-gray-100 rounded-xl shadow-sm flex items-center justify-center">
+                                        <Rocket size={20} className="text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-gray-900">Product Ops Lead</h3>
+                                        <p className="text-xs text-gray-500">WhiteHat Jr (Byju's) • 2020 – 2022</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <Milestone 
+                                        date="Apr 2021"
+                                        type="launch"
+                                        title="Launched Centralized Ops Repo"
+                                        description="Reduced curriculum rollout time by 30% (10w → 7w) for 12k student cohort."
+                                    />
+                                    <Milestone 
+                                        date="Feb 2021"
+                                        type="launch"
+                                        title="Shipped 20+ Interactive Modules"
+                                        description="Coordinated launch with Eng/Design. Drove Teacher NPS from 72 → 87."
+                                    />
+                                    <Milestone 
+                                        date="Dec 2020"
+                                        type="default"
+                                        title="Scale & Support Optimization"
+                                        description="Cut support tickets by >50% via self-serve documentation systems."
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Role 2 */}
+                            <div className="mb-12">
+                                <div className="flex items-center gap-3 mb-6 relative z-10">
+                                    <div className="w-12 h-12 bg-white border border-gray-100 rounded-xl shadow-sm flex items-center justify-center">
+                                        <Layout size={20} className="text-purple-600" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-gray-900">Founder & CEO</h3>
+                                        <p className="text-xs text-gray-500">Delta Learning • 2019 – 2020</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <Milestone 
+                                        date="2020"
+                                        type="launch"
+                                        title="Scaled to 1.2 Cr ARR"
+                                        description="Bootstrapped offline upskilling startup to peak run rate with ~30% net margins."
+                                    />
+                                    <Milestone 
+                                        date="2019"
+                                        type="launch"
+                                        title="Project-Based Learning Dashboard"
+                                        description="Built and launched student tracking system. Improved completion rates by 15pp."
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Side Quests / "Beyond the Office" - Showing Personality */}
+                    <section id="side-projects" className="mb-20">
+                        <h2 className="text-2xl font-bold text-gray-900 mb-8">Side Quests & Tinkerings</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                            <BentoItem 
+                                title="Velocity" 
+                                subtitle="4 Prototypes in 8 weeks" 
+                                icon={Zap} 
+                                color="bg-yellow-100"
+                            />
+                            <BentoItem 
+                                title="Writing" 
+                                subtitle="Product Case Studies" 
+                                icon={BookOpen} 
+                                color="bg-blue-100"
+                            />
+                            <BentoItem 
+                                title="Stack" 
+                                subtitle="Gemini, n8n, React" 
+                                icon={Code2} 
+                                color="bg-gray-100"
+                            />
+                            <BentoItem 
+                                title="Learning" 
+                                subtitle="GenAI Certified '24" 
+                                icon={Coffee} 
+                                color="bg-green-100"
+                            />
+                        </div>
+                    </section>
+
+                    {/* Footer */}
+                    <footer className="pt-10 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+                        <p>© 2025 Vijay Sehgal. Built with Gemini 3.</p>
+                        <div className="flex gap-6">
+                            <a href="https://linkedin.com/in/vijaysehgal" className="hover:text-black">LinkedIn</a>
+                            <a href="mailto:vijay.b.sehgal@gmail.com" className="hover:text-black">Email</a>
+                            <a href="#" className="hover:text-black">Portfolio Source</a>
+                        </div>
+                    </footer>
+
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
